@@ -1,0 +1,1134 @@
+Analysis_key=UQ1.1
+#UQ1.1|How many grades are there in this organization?
+# Get the selected grade from params as per getParameterMapping
+selected_grade = params.get('Grade', '')
+
+# Debug: Print the selected grade
+print(f"Selected grade: {selected_grade}")
+
+# Step 1: Extract numeric part from Grade column and get unique numeric grades
+df1["Numeric_Grade"] = df1["Grade"].str.extract(r'(\d+)').astype(int)  # Extract digits (e.g., "5A" -> 5)
+
+if selected_grade:
+    # If a specific grade is selected, extract its numeric part for filtering
+    try:
+        selected_numeric_grade = int(''.join(filter(str.isdigit, selected_grade)))  # e.g., "5A" -> 5
+        org_grades = df1[df1["Numeric_Grade"] == selected_numeric_grade]["Numeric_Grade"].unique()
+        selected_org = df1[df1["Numeric_Grade"] == selected_numeric_grade]["Organization_Name"].iloc[0] if len(df1[df1["Numeric_Grade"] == selected_numeric_grade]) > 0 else "Unknown"
+    except ValueError:
+        print(f"Error: Could not extract numeric grade from {selected_grade}")
+        org_grades = []
+        selected_org = "Unknown"
+else:
+    org_grades = df1["Numeric_Grade"].unique()  # All unique numeric grades
+    selected_org = df1["Organization_Name"].iloc[0] if len(df1) > 0 else "All Organizations"
+
+# Debug: Print the number of unique grades and organization
+print(f"Selected organization: {selected_org}")
+print(f"Number of unique numeric grades in {selected_org}: {len(org_grades)}")
+print(f"Unique numeric grades: {list(org_grades)}")
+
+# Create a bar chart without y-axis
+plt.figure(figsize=(10, 6), facecolor='white')
+if len(org_grades) > 0:
+    plt.bar(range(len(org_grades)), [1] * len(org_grades), color='#A7E6D7')
+    plt.xticks(range(len(org_grades)), org_grades, rotation=45)
+    plt.title(f"Number of Grades in {selected_org}: {len(org_grades)}", fontsize=16, pad=20)
+    plt.xlabel("Grades", fontsize=12)
+    plt.gca().get_yaxis().set_visible(False)  # Hide the y-axis
+else:
+    plt.text(0.5, 0.5, f"No grades found for {selected_org}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.gca().get_yaxis().set_visible(False)  # Hide the y-axis in error case too
+
+plt.tight_layout()
+
+# Save the plot to a buffer and encode as base64
+buffer = io.BytesIO()
+plt.savefig(buffer, format='png', bbox_inches='tight')
+buffer.seek(0)
+image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+buffer.close()
+plt.close()
+
+# Return the base64 encoded image
+result = image_base64
+
+############################################################################################################################################################################################
+Analysis_key=UQ1.2
+#UQ1.2|What are the courses assigned to the organization?
+
+# Get the selected organization from params
+selected_org = params.get('Organization_Name', '')
+
+# Debug: Print the selected organization
+print(f"Selected organization: {selected_org}")
+
+# Step 1: Filter df1 for the selected organization and get unique courses
+org_courses = df1[df1["Organization_Name"] == selected_org]["Course"].unique()
+
+# Debug: Print the courses
+print(f"Number of unique courses in {selected_org}: {len(org_courses)}")
+print(f"Unique courses: {list(org_courses)}")
+
+# Create a vertical bar chart with courses on x-axis
+plt.figure(figsize=(10, 6), facecolor='white')
+if len(org_courses) > 0:
+    plt.bar(range(len(org_courses)), [1] * len(org_courses), color='#A3BFFA')
+    plt.xticks(range(len(org_courses)), org_courses, rotation=45, ha='right')  # Courses on x-axis, rotated for readability
+    plt.title(f"Courses Assigned to {selected_org}", fontsize=16, pad=20)
+    plt.xlabel("Courses", fontsize=12)
+    plt.gca().get_yaxis().set_visible(False)  # Hide the y-axis
+else:
+    plt.text(0.5, 0.5, f"No courses found for {selected_org}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.gca().get_yaxis().set_visible(False)  # Hide the y-axis in error case too
+
+plt.tight_layout()
+
+# Save and encode
+buffer = io.BytesIO()
+plt.savefig(buffer, format='png', bbox_inches='tight')
+buffer.seek(0)
+image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+buffer.close()
+plt.close()
+
+result = image_base64
+
+############################################################################################################################################################################################
+Analysis_key=UQ1.3
+#UQ1.3|How many courses have been assigned to the organization?
+
+# Debug: Print the selected organization
+print(f"Selected organization: {selected_org}")
+
+# Step 1: Filter df1 for the selected organization and count unique courses
+org_courses = df1[df1["Organization_Name"] == selected_org]["Course"].unique()
+course_count = len(org_courses)
+
+# Debug: Print the count
+print(f"Number of courses in {selected_org}: {course_count}")
+
+# Create a simple text visualization
+plt.figure(figsize=(8, 4), facecolor='white')
+plt.text(0.5, 0.5, f"{selected_org}\nTotal Courses Assigned: {course_count}",
+         fontsize=16, ha='center', va='center',
+         bbox=dict(boxstyle='round,pad=0.5', facecolor='#F5A9B8', edgecolor='#991b1b', alpha=0.9))
+plt.axis('off')
+plt.tight_layout()
+
+# Save and encode
+buffer = io.BytesIO()
+plt.savefig(buffer, format='png', bbox_inches='tight')
+buffer.seek(0)
+image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+buffer.close()
+plt.close()
+
+result = image_base64
+############################################################################################################################################################################################
+Analysis_key=UQ1.4
+#UQ1.4|What is the organization's average course-wise completion rate?
+
+# Get the selected organization from params
+selected_org = params.get('Organization_Name', '')
+
+# Debug: Print the selected organization
+print(f"Selected organization: {selected_org}")
+
+# Step 1: Filter df1 for the selected organization and get unique users
+org_users = df1[df1["Organization_Name"] == selected_org]["User_FullName"].unique()
+
+# Debug: Print the number of unique users
+print(f"Number of unique users in {selected_org}: {len(org_users)}")
+print(f"Unique users: {list(org_users)}")
+
+# Step 2: Filter df2 for the users in the selected organization
+user_data = df2[df2["User_FullName"].isin(org_users)]
+
+# Debug: Print the filtered data shape
+print(f"User data shape in df2: {user_data.shape}")
+
+# Check if Unit_Status column exists in df2
+if "Unit_Status" not in user_data.columns:
+    print("ERROR: 'Unit_Status' column not found in df2")
+    # Check what columns are available
+    print(f"Available columns in df2: {list(user_data.columns)}")
+    
+    # Create a placeholder pie chart with an error message
+    plt.figure(figsize=(8, 8), facecolor='white')
+    plt.text(0.5, 0.5, f"Error: 'Unit_Status' column not found in data for {selected_org}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.axis('equal')
+    plt.tight_layout()
+    
+    # Save the error message as an image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    
+    # Return the error image
+    result = image_base64
+else:
+    # Initialize lists to store each user's percentages
+    user_completed_pcts = []
+    user_in_progress_pcts = []
+    user_not_started_pcts = []
+    
+    # Process each user individually
+    for user in org_users:
+        # Get this user's data
+        single_user_data = user_data[user_data["User_FullName"] == user]
+        
+        # Check if Unit_Title column exists (for uniqueness of units)
+        if "Unit_Title" not in single_user_data.columns:
+            print(f"WARNING: 'Unit_Title' column not found for user {user}")
+            continue
+            
+        # Get unique units for this user
+        try:
+            user_units = single_user_data[["Unit_Title", "Unit_Status"]].drop_duplicates()
+            
+            # Count statuses for this user
+            user_status_counts = user_units["Unit_Status"].value_counts()
+            
+            # Get counts for each status
+            user_completed = user_status_counts.get("Completed", 0)
+            user_in_progress = user_status_counts.get("In Progress", 0)
+            user_not_started = user_status_counts.get("Yet to Start", 0)
+            
+            # Calculate total units for this user
+            user_total_units = user_completed + user_in_progress + user_not_started
+            
+            # Debug: Print user counts
+            print(f"User {user}: Completed: {user_completed}, In Progress: {user_in_progress}, Not Started: {user_not_started}, Total: {user_total_units}")
+            
+            # Calculate percentages for this user
+            if user_total_units > 0:
+                user_completed_pct = (user_completed / user_total_units) * 100
+                user_in_progress_pct = (user_in_progress / user_total_units) * 100
+                user_not_started_pct = (user_not_started / user_total_units) * 100
+                
+                # Append to lists
+                user_completed_pcts.append(user_completed_pct)
+                user_in_progress_pcts.append(user_in_progress_pct)
+                user_not_started_pcts.append(user_not_started_pct)
+                
+                # Debug: Print user percentages
+                print(f"User {user} percentages - Completed: {user_completed_pct:.1f}%, In Progress: {user_in_progress_pct:.1f}%, Not Started: {user_not_started_pct:.1f}%")
+        except Exception as e:
+            print(f"Error processing user {user}: {str(e)}")
+            continue
+    
+    # Calculate average percentages across all users
+    if len(user_completed_pcts) > 0:
+        avg_completed_pct = sum(user_completed_pcts) / len(user_completed_pcts)
+        avg_in_progress_pct = sum(user_in_progress_pcts) / len(user_in_progress_pcts)
+        avg_not_started_pct = sum(user_not_started_pcts) / len(user_not_started_pcts)
+    else:
+        avg_completed_pct = avg_in_progress_pct = avg_not_started_pct = 0
+    
+    # Debug: Print average percentages
+    print(f"Average percentages - Completed: {avg_completed_pct:.1f}%, In Progress: {avg_in_progress_pct:.1f}%, Not Started: {avg_not_started_pct:.1f}%")
+    
+    # Define labels, sizes, and colors for the pie chart
+    labels = ["Completed", "In Progress", "Yet to Start"]
+    sizes = [avg_completed_pct, avg_in_progress_pct, avg_not_started_pct]
+    colors = ['#A7E6D7', '#A3BFFA', '#F5A9B8']  # Pastel Green for Completed, Pastel Blue for In Progress, Pastel Pink for Not Started
+    explode = (0.05, 0, 0)  # Slightly explode the "Completed" slice
+    
+    # Create a figure for the pie chart
+    plt.figure(figsize=(10, 8), facecolor='white')
+    
+    # Plot the pie chart or a message if no data
+    if len(user_completed_pcts) == 0:
+        plt.text(0.5, 0.5, f"No valid data found for {selected_org}.",
+                 fontsize=14, ha='center', va='center',
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    else:
+        plt.pie(sizes, explode=explode, colors=colors, autopct='%1.1f%%', startangle=140)
+        plt.legend(labels, title="Status", loc="center left", bbox_to_anchor=(1, 0.5))
+        plt.title(f"Average Course-wise Completion Status for {selected_org}\n(Across {len(user_completed_pcts)} Users)", 
+                  fontsize=16, pad=20)
+    
+    # Ensure the pie chart is circular
+    plt.axis('equal')
+    
+    # Adjust layout to accommodate the legend
+    plt.tight_layout(rect=[0, 0, 0.75, 1])
+    
+    # Save the plot to a BytesIO buffer and encode as base64
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    
+    # Return the base64 encoded image
+    result = image_base64
+############################################################################################################################################################################################
+Analysis_key=UQ1.5
+#UQ1.5|What is the organization's average chapter-wise completion rate? 
+# Get the selected organization and grade from params
+selected_org = params.get('Organization_Name', '')
+selected_grade = params.get('Grade', '')
+
+# Debug: Print the selected organization and grade
+print(f"Selected organization: {selected_org}")
+print(f"Selected grade: {selected_grade}")
+
+# Step 1: Filter df1 for the selected organization first, then by grade if provided
+org_users = df1[df1["Organization_Name"] == selected_org]["User_FullName"].unique()
+print(f"Number of unique users in {selected_org}: {len(org_users)}")
+print(f"Unique users in organization: {list(org_users)}")
+
+if selected_grade:
+    grade_users = df1[(df1["Organization_Name"] == selected_org) & (df1["Grade"] == selected_grade)]["User_FullName"].unique()
+else:
+    grade_users = org_users  # Use all users in the organization if no grade selected
+
+# Debug: Print the number of unique users after grade filter
+print(f"Number of unique users in grade {selected_grade or 'All Grades'} within {selected_org}: {len(grade_users)}")
+print(f"Unique users: {list(grade_users)}")
+
+# Step 2: Filter df2 for the users in the selected organization and grade
+user_data = df2[df2["User_FullName"].isin(grade_users)]
+
+# Debug: Print the filtered data shape
+print(f"User data shape in df2: {user_data.shape}")
+
+# Check if required columns exist in df2
+if "Unit_Status" not in user_data.columns or "Chapter_Title" not in user_data.columns:
+    print("ERROR: Required columns ('Unit_Status' or 'Chapter_Title') not found in df2")
+    print(f"Available columns in df2: {list(user_data.columns)}")
+    
+    # Create a placeholder pie chart with an error message
+    plt.figure(figsize=(8, 8), facecolor='white')
+    plt.text(0.5, 0.5, f"Error: Required columns not found in data for {selected_org}, Grade: {selected_grade or 'All Grades'}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.axis('equal')
+    plt.tight_layout()
+    
+    # Save the error message as an image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    
+    # Return the error image
+    result = image_base64
+else:
+    # Step 3: Group user_data by Chapter_Title
+    chapters = user_data["Chapter_Title"].unique()
+    print(f"Unique chapters: {list(chapters)}")
+
+    # If no chapters found, show a message
+    if len(chapters) == 0:
+        plt.figure(figsize=(8, 8), facecolor='white')
+        plt.text(0.5, 0.5, f"No chapters found for {selected_org}, Grade: {selected_grade or 'All Grades'}.",
+                 fontsize=14, ha='center', va='center',
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+        plt.axis('equal')
+        plt.tight_layout()
+        
+        # Save the error message as an image
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        result = image_base64
+    else:
+        # Define labels and colors for the pie charts
+        labels = ["Completed", "In Progress", "Yet to Start"]
+        colors = ['#A7E6D7', '#A3BFFA', '#F5A9B8']  # Pastel Green, Pastel Blue, Pastel Pink
+        explode = (0.05, 0, 0)  # Slightly explode the "Completed" slice
+
+        # Calculate the number of rows and columns for the subplot grid
+        n_chapters = len(chapters)
+        ncols = 2  # Number of columns in the grid
+        nrows = (n_chapters + 1) // 2  # Number of rows (ceiling division)
+
+        # Create a figure with subplots
+        fig, axes = plt.subplots(nrows, ncols, figsize=(12, 6 * nrows), facecolor='white')
+        axes = axes.flatten()  # Flatten the axes array for easier iteration
+
+        # Process each chapter
+        for idx, chapter in enumerate(chapters):
+            print(f"\nProcessing chapter: {chapter}")
+            
+            # Filter data for this chapter
+            chapter_data = user_data[user_data["Chapter_Title"] == chapter]
+            
+            # Get unique users who have data for this chapter
+            chapter_users = chapter_data["User_FullName"].unique()
+            print(f"Users in chapter {chapter}: {list(chapter_users)}")
+            
+            # Initialize lists to store each user's percentages for this chapter
+            user_completed_pcts = []
+            user_in_progress_pcts = []
+            user_not_started_pcts = []
+            
+            # Process each user for this chapter
+            for user in chapter_users:
+                # Get this user's data for the chapter
+                single_user_data = chapter_data[chapter_data["User_FullName"] == user]
+                
+                # Check if Unit_Title column exists
+                if "Unit_Title" not in single_user_data.columns:
+                    print(f"WARNING: 'Unit_Title' column not found for user {user} in chapter {chapter}")
+                    continue
+                    
+                # Get unique units for this user in this chapter
+                try:
+                    user_units = single_user_data[["Unit_Title", "Unit_Status"]].drop_duplicates()
+                    
+                    # Count statuses for this user
+                    user_status_counts = user_units["Unit_Status"].value_counts()
+                    
+                    # Get counts for each status
+                    user_completed = user_status_counts.get("Completed", 0)
+                    user_in_progress = user_status_counts.get("In Progress", 0)
+                    user_not_started = user_status_counts.get("Yet to Start", 0)
+                    
+                    # Calculate total units for this user in this chapter
+                    user_total_units = user_completed + user_in_progress + user_not_started
+                    
+                    # Debug: Print user counts
+                    print(f"User {user} in chapter {chapter}: Completed: {user_completed}, In Progress: {user_in_progress}, Not Started: {user_not_started}, Total: {user_total_units}")
+                    
+                    # Calculate percentages for this user
+                    if user_total_units > 0:
+                        user_completed_pct = (user_completed / user_total_units) * 100
+                        user_in_progress_pct = (user_in_progress / user_total_units) * 100
+                        user_not_started_pct = (user_not_started / user_total_units) * 100
+                        
+                        # Append to lists
+                        user_completed_pcts.append(user_completed_pct)
+                        user_in_progress_pcts.append(user_in_progress_pct)
+                        user_not_started_pcts.append(user_not_started_pct)
+                        
+                        # Debug: Print user percentages
+                        print(f"User {user} in chapter {chapter} percentages - Completed: {user_completed_pct:.1f}%, In Progress: {user_in_progress_pct:.1f}%, Not Started: {user_not_started_pct:.1f}%")
+                except Exception as e:
+                    print(f"Error processing user {user} in chapter {chapter}: {str(e)}")
+                    continue
+            
+            # Calculate average percentages across all users for this chapter
+            if len(user_completed_pcts) > 0:
+                avg_completed_pct = sum(user_completed_pcts) / len(user_completed_pcts)
+                avg_in_progress_pct = sum(user_in_progress_pcts) / len(user_in_progress_pcts)
+                avg_not_started_pct = sum(user_not_started_pcts) / len(user_not_started_pcts)
+            else:
+                avg_completed_pct = avg_in_progress_pct = avg_not_started_pct = 0
+            
+            # Debug: Print average percentages for this chapter
+            print(f"Average percentages for chapter {chapter} - Completed: {avg_completed_pct:.1f}%, In Progress: {avg_in_progress_pct:.1f}%, Not Started: {avg_not_started_pct:.1f}%")
+            
+            # Plot the pie chart for this chapter
+            ax = axes[idx]
+            sizes = [avg_completed_pct, avg_in_progress_pct, avg_not_started_pct]
+            
+            if len(user_completed_pcts) == 0:
+                ax.text(0.5, 0.5, f"No valid data for\n{chapter}",
+                        fontsize=10, ha='center', va='center',
+                        bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+            else:
+                ax.pie(sizes, explode=explode, colors=colors, autopct='%1.1f%%', startangle=140)
+                ax.set_title(f"{chapter}\n(Across {len(user_completed_pcts)} Users)", fontsize=12, pad=15)
+            
+            # Ensure the pie chart is circular
+            ax.axis('equal')
+        
+        # Add a single legend for all subplots
+        fig.legend(labels, title="Status", loc="center right", bbox_to_anchor=(1, 0.5))
+        
+        # Turn off any unused subplots
+        for idx in range(len(chapters), len(axes)):
+            axes[idx].axis('off')
+        
+        # Adjust layout to accommodate the legend and subplots
+        plt.suptitle(f"Chapter-wise Completion Status for {selected_org}, Grade: {selected_grade or 'All Grades'}", fontsize=16, y=1.02)
+        plt.tight_layout(rect=[0, 0, 0.85, 0.95])
+        
+        # Save the plot to a BytesIO buffer and encode as base64
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        # Return the base64 encoded image
+        result = image_base64
+############################################################################################################################################################################################
+Analysis_key=UQ1.6
+#UQ1.6|Who are the top performers in the organization based on completion rates?
+
+selected_org = params.get('Organization_Name', 'I Can International School')
+# Get the selected organization from params
+selected_org = params.get('Organization_Name', '')
+
+# Debug: Print the selected organization
+print(f"Selected organization: {selected_org}")
+
+# Step 1: Filter df1 for the selected organization and get unique users
+org_users = df1[df1["Organization_Name"] == selected_org]["User_FullName"].unique()
+
+# Debug: Print the number of unique users
+print(f"Number of unique users in {selected_org}: {len(org_users)}")
+print(f"Unique users: {list(org_users)}")
+
+# Step 2: Filter df2 for the users in the selected organization
+user_data = df2[df2["User_FullName"].isin(org_users)]
+
+# Debug: Print the filtered data shape
+print(f"User data shape in df2: {user_data.shape}")
+
+# Check if required columns exist in df2
+if "Unit_Status" not in user_data.columns or "User_FullName" not in user_data.columns:
+    print("ERROR: Required columns ('Unit_Status' or 'User_FullName') not found in df2")
+    print(f"Available columns in df2: {list(user_data.columns)}")
+    
+    # Create a placeholder figure with an error message
+    plt.figure(figsize=(8, 6), facecolor='white')
+    plt.text(0.5, 0.5, f"Error: Required columns not found in data for {selected_org}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.axis('off')
+    plt.tight_layout()
+    
+    # Save the error message as an image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    
+    # Return the error image
+    result = image_base64
+else:
+    # Step 3: Calculate completion rates for each user
+    user_completion_rates = []
+    
+    for user in org_users:
+        # Get this user's data
+        single_user_data = user_data[user_data["User_FullName"] == user]
+        
+        # Check if Unit_Title column exists (to count unique units)
+        if "Unit_Title" not in single_user_data.columns:
+            print(f"WARNING: 'Unit_Title' column not found for user {user}")
+            continue
+        
+        # Get unique units for this user
+        try:
+            user_units = single_user_data[["Unit_Title", "Unit_Status"]].drop_duplicates()
+            
+            # Count statuses for this user
+            user_status_counts = user_units["Unit_Status"].value_counts()
+            
+            # Get counts for "Completed" status
+            user_completed = user_status_counts.get("Completed", 0)
+            
+            # Calculate total units for this user
+            user_total_units = len(user_units)
+            
+            # Debug: Print user counts
+            print(f"User {user}: Completed: {user_completed}, Total Units: {user_total_units}")
+            
+            # Calculate completion percentage for this user
+            if user_total_units > 0:
+                user_completed_pct = (user_completed / user_total_units) * 100
+            else:
+                user_completed_pct = 0
+                
+            # Append to list
+            user_completion_rates.append((user, user_completed_pct))
+            
+            # Debug: Print user completion percentage
+            print(f"User {user} completion percentage: {user_completed_pct:.1f}%")
+        except Exception as e:
+            print(f"Error processing user {user}: {str(e)}")
+            continue
+    
+    # Step 4: Sort users by completion rate and get top 5
+    user_completion_rates.sort(key=lambda x: x[1], reverse=True)  # Sort by percentage in descending order
+    top_users = user_completion_rates[:5]  # Get top 5 users
+    
+    # Debug: Print top 5 users
+    print(f"Top 5 users by completion rate in {selected_org}: {[(user, f'{pct:.1f}%') for user, pct in top_users]}")
+    
+    # If no users found, show a message
+    if not top_users:
+        plt.figure(figsize=(8, 6), facecolor='white')
+        plt.text(0.5, 0.5, f"No valid data found for {selected_org}.",
+                 fontsize=14, ha='center', va='center',
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+        plt.axis('off')
+        plt.tight_layout()
+        
+        # Save the error message as an image
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        result = image_base64
+    else:
+        # Step 5: Create a bar graph for the top 5 users
+        # Extract user names and their completion percentages
+        users, completion_pcts = zip(*top_users)
+        
+        # Create a figure
+        plt.figure(figsize=(10, 6), facecolor='white')
+        
+        # Plot the bar graph
+        bars = plt.bar(users, completion_pcts, color='#A3BFFA')  # Pastel Blue for bars
+        
+        # Add percentage labels on top of each bar
+        for bar in bars:
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2, yval + 1, f'{yval:.1f}%', 
+                     ha='center', va='bottom', fontsize=10)
+        
+        # Customize the plot
+        plt.title(f"Top 5 Performers by Completion Rate in {selected_org}", 
+                  fontsize=16, pad=20)
+        plt.xlabel("Users", fontsize=12)
+        plt.ylabel("Completion Percentage (%)", fontsize=12)
+        plt.ylim(0, 110)  # Set y-axis limit to 110 to accommodate percentage labels
+        
+        # Rotate x-axis labels for better readability
+        plt.xticks(rotation=45, ha='right')
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        # Save the plot to a BytesIO buffer and encode as base64
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        # Return the base64 encoded image
+        result = image_base64
+############################################################################################################################################################################################
+Analysis_key=UQ1.7
+#UQ1.7|Who are the underperformers in the organization based on completion rates?
+# Get the selected organization from params
+selected_org = params.get('Organization_Name', '')
+
+# Debug: Print the selected organization
+print(f"Selected organization: {selected_org}")
+
+# Step 1: Filter df1 for the selected organization and get unique users
+org_users = df1[df1["Organization_Name"] == selected_org]["User_FullName"].unique()
+
+# Debug: Print the number of unique users
+print(f"Number of unique users in {selected_org}: {len(org_users)}")
+print(f"Unique users: {list(org_users)}")
+
+# Step 2: Filter df2 for the users in the selected organization
+user_data = df2[df2["User_FullName"].isin(org_users)]
+
+# Debug: Print the filtered data shape
+print(f"User data shape in df2: {user_data.shape}")
+
+# Check if required columns exist in df2
+if "Unit_Status" not in user_data.columns or "User_FullName" not in user_data.columns:
+    print("ERROR: Required columns ('Unit_Status' or 'User_FullName') not found in df2")
+    print(f"Available columns in df2: {list(user_data.columns)}")
+    
+    # Create a placeholder figure with an error message
+    plt.figure(figsize=(8, 6), facecolor='white')
+    plt.text(0.5, 0.5, f"Error: Required columns not found in data for {selected_org}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.axis('off')
+    plt.tight_layout()
+    
+    # Save the error message as an image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    
+    # Return the error image
+    result = image_base64
+else:
+    # Step 3: Calculate completion rates for each user
+    user_completion_rates = []
+    
+    for user in org_users:
+        # Get this user's data
+        single_user_data = user_data[user_data["User_FullName"] == user]
+        
+        # Check if Unit_Title column exists (to count unique units)
+        if "Unit_Title" not in single_user_data.columns:
+            print(f"WARNING: 'Unit_Title' column not found for user {user}")
+            continue
+        
+        # Get unique units for this user
+        try:
+            user_units = single_user_data[["Unit_Title", "Unit_Status"]].drop_duplicates()
+            
+            # Count statuses for this user
+            user_status_counts = user_units["Unit_Status"].value_counts()
+            
+            # Get counts for "Completed" status
+            user_completed = user_status_counts.get("Completed", 0)
+            
+            # Calculate total units for this user
+            user_total_units = len(user_units)
+            
+            # Debug: Print user counts
+            print(f"User {user}: Completed: {user_completed}, Total Units: {user_total_units}")
+            
+            # Calculate completion percentage for this user
+            if user_total_units > 0:
+                user_completed_pct = (user_completed / user_total_units) * 100
+            else:
+                user_completed_pct = 0
+                
+            # Append to list
+            user_completion_rates.append((user, user_completed_pct))
+            
+            # Debug: Print user completion percentage
+            print(f"User {user} completion percentage: {user_completed_pct:.1f}%")
+        except Exception as e:
+            print(f"Error processing user {user}: {str(e)}")
+            continue
+    
+    # Step 4: Sort users by completion rate and get bottom 5 (weakest performers)
+    user_completion_rates.sort(key=lambda x: x[1])  # Sort by percentage in ascending order
+    weak_users = user_completion_rates[:5]  # Get bottom 5 users (lowest completion rates)
+    
+    # Debug: Print bottom 5 users
+    print(f"Top 5 weakest performers by completion rate in {selected_org}: {[(user, f'{pct:.1f}%') for user, pct in weak_users]}")
+    
+    # If no users found, show a message
+    if not weak_users:
+        plt.figure(figsize=(8, 6), facecolor='white')
+        plt.text(0.5, 0.5, f"No valid data found for {selected_org}.",
+                 fontsize=14, ha='center', va='center',
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+        plt.axis('off')
+        plt.tight_layout()
+        
+        # Save the error message as an image
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        result = image_base64
+    else:
+        # Step 5: Create a bar graph for the top 5 weakest performers
+        # Extract user names and their completion percentages
+        users, completion_pcts = zip(*weak_users)
+        
+        # Create a figure
+        plt.figure(figsize=(10, 6), facecolor='white')
+        
+        # Plot the bar graph
+        bars = plt.bar(users, completion_pcts, color='#F5A9B8')  # Pastel Pink for weakest performers
+        
+        # Add percentage labels on top of each bar
+        for bar in bars:
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2, yval + 1, f'{yval:.1f}%', 
+                     ha='center', va='bottom', fontsize=10)
+        
+        # Customize the plot
+        plt.title(f"Top 5 Weakest Performers by Completion Rate in {selected_org}", 
+                  fontsize=16, pad=20)
+        plt.xlabel("Users", fontsize=12)
+        plt.ylabel("Completion Percentage (%)", fontsize=12)
+        plt.ylim(0, 110)  # Set y-axis limit to 110 to accommodate percentage labels
+        
+        # Rotate x-axis labels for better readability
+        plt.xticks(rotation=45, ha='right')
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        # Save the plot to a BytesIO buffer and encode as base64
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        # Return the base64 encoded image
+        result = image_base64
+############################################################################################################################################################################################
+Analysis_key=UQ1.8
+# Get the selected organization from params
+selected_org = params.get('Organization_Name', '')
+
+# Debug: Print the selected organization
+print(f"Selected organization: {selected_org}")
+
+# Step 1: Filter df1 for the selected organization and get unique users
+org_users = df1[df1["Organization_Name"] == selected_org]["User_FullName"].unique()
+
+# Debug: Print the number of unique users
+print(f"Number of unique users in {selected_org}: {len(org_users)}")
+print(f"Unique users: {list(org_users)}")
+
+# Step 2: Filter df2 for the users in the selected organization
+user_data = df2[df2["User_FullName"].isin(org_users)]
+
+# Debug: Print the filtered data shape
+print(f"User data shape in df2: {user_data.shape}")
+
+# Check if required columns exist in df2
+if "Unit_Status" not in user_data.columns or "User_FullName" not in user_data.columns:
+    print("ERROR: Required columns ('Unit_Status' or 'User_FullName') not found in df2")
+    print(f"Available columns in df2: {list(user_data.columns)}")
+    
+    # Create a placeholder figure with an error message
+    plt.figure(figsize=(8, 6), facecolor='white')
+    plt.text(0.5, 0.5, f"Error: Required columns not found in data for {selected_org}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.axis('off')
+    plt.tight_layout()
+    
+    # Save the error message as an image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    
+    # Return the error image
+    result = image_base64
+else:
+    # Step 3: Calculate completion rates for each user and filter for >90%
+    user_completion_rates = []
+    
+    for user in org_users:
+        # Get this user's data
+        single_user_data = user_data[user_data["User_FullName"] == user]
+        
+        # Check if Unit_Title column exists (to count unique units)
+        if "Unit_Title" not in single_user_data.columns:
+            print(f"WARNING: 'Unit_Title' column not found for user {user}")
+            continue
+        
+        # Get unique units for this user
+        try:
+            user_units = single_user_data[["Unit_Title", "Unit_Status"]].drop_duplicates()
+            
+            # Count statuses for this user
+            user_status_counts = user_units["Unit_Status"].value_counts()
+            
+            # Get counts for "Completed" status
+            user_completed = user_status_counts.get("Completed", 0)
+            
+            # Calculate total units for this user
+            user_total_units = len(user_units)
+            
+            # Debug: Print user counts
+            print(f"User {user}: Completed: {user_completed}, Total Units: {user_total_units}")
+            
+            # Calculate completion percentage for this user
+            if user_total_units > 0:
+                user_completed_pct = (user_completed / user_total_units) * 100
+            else:
+                user_completed_pct = 0
+                
+            # Append to list only if completion rate > 90%
+            if user_completed_pct > 90:
+                user_completion_rates.append((user, user_completed_pct))
+            
+            # Debug: Print user completion percentage
+            print(f"User {user} completion percentage: {user_completed_pct:.1f}%")
+        except Exception as e:  # Fixed the invalid character issue here
+            print(f"Error processing user {user}: {str(e)}")
+            continue
+    
+    # Step 4: Sort users by completion rate (descending) and take all with >90%
+    user_completion_rates.sort(key=lambda x: x[1], reverse=True)  # Sort by percentage in descending order
+    
+    # Debug: Print users with >90% completion
+    print(f"Users with >90% completion rate in {selected_org}: {[(user, f'{pct:.1f}%') for user, pct in user_completion_rates]}")
+    
+    # If no users with >90% completion found, show a message
+    if not user_completion_rates:
+        plt.figure(figsize=(8, 6), facecolor='white')
+        plt.text(0.5, 0.5, f"No users with >90% completion found in {selected_org}.",
+                 fontsize=14, ha='center', va='center',
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+        plt.axis('off')
+        plt.tight_layout()
+        
+        # Save the error message as an image
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        result = image_base64
+    else:
+        # Step 5: Create a bar graph for users with >90% completion
+        # Extract user names and their completion percentages
+        users, completion_pcts = zip(*user_completion_rates)
+        
+        # Create a figure
+        plt.figure(figsize=(10, 6), facecolor='white')
+        
+        # Plot the bar graph
+        bars = plt.bar(users, completion_pcts, color='#A7E6D7')  # Pastel Green for top performers
+        
+        # Add percentage labels on top of each bar
+        for bar in bars:
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2, yval + 1, f'{yval:.1f}%', 
+                     ha='center', va='bottom', fontsize=10)
+        
+        # Customize the plot
+        plt.title(f"Top Performers with >90% Completion Rate in {selected_org}", 
+                  fontsize=16, pad=20)
+        plt.xlabel("Users", fontsize=12)
+        plt.ylabel("Completion Percentage (%)", fontsize=12)
+        plt.ylim(0, 110)  # Set y-axis limit to 110 to accommodate percentage labels
+        
+        # Rotate x-axis labels for better readability
+        plt.xticks(rotation=45, ha='right')
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        # Save the plot to a BytesIO buffer and encode as base64
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        # Return the base64 encoded image
+        result = image_base64
+############################################################################################################################################################################################
+Analysis_key=UQ1.9
+#UQ1.9|Who are the underperformers with completion rates below 60% needing attention in the Organization?
+# Get the selected organization from params
+selected_org = params.get('Organization_Name', '')
+
+# Debug: Print the selected organization
+print(f"Selected organization: {selected_org}")
+
+# Step 1: Filter df1 for the selected organization and get unique users
+org_users = df1[df1["Organization_Name"] == selected_org]["User_FullName"].unique()
+
+# Debug: Print the number of unique users
+print(f"Number of unique users in {selected_org}: {len(org_users)}")
+print(f"Unique users: {list(org_users)}")
+
+# Step 2: Filter df2 for the users in the selected organization
+user_data = df2[df2["User_FullName"].isin(org_users)]
+
+# Debug: Print the filtered data shape
+print(f"User data shape in df2: {user_data.shape}")
+
+# Check if required columns exist in df2
+if "Unit_Status" not in user_data.columns or "User_FullName" not in user_data.columns:
+    print("ERROR: Required columns ('Unit_Status' or 'User_FullName') not found in df2")
+    print(f"Available columns in df2: {list(user_data.columns)}")
+    
+    # Create a placeholder figure with an error message
+    plt.figure(figsize=(8, 6), facecolor='white')
+    plt.text(0.5, 0.5, f"Error: Required columns not found in data for {selected_org}.",
+             fontsize=14, ha='center', va='center',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+    plt.axis('off')
+    plt.tight_layout()
+    
+    # Save the error message as an image
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png', bbox_inches='tight')
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
+    plt.close()
+    
+    # Return the error image
+    result = image_base64
+else:
+    # Step 3: Calculate completion rates for each user and filter for <60%
+    user_completion_rates = []
+    
+    for user in org_users:
+        # Get this user's data
+        single_user_data = user_data[user_data["User_FullName"] == user]
+        
+        # Check if Unit_Title column exists (to count unique units)
+        if "Unit_Title" not in single_user_data.columns:
+            print(f"WARNING: 'Unit_Title' column not found for user {user}")
+            continue
+        
+        # Get unique units for this user
+        try:
+            user_units = single_user_data[["Unit_Title", "Unit_Status"]].drop_duplicates()
+            
+            # Count statuses for this user
+            user_status_counts = user_units["Unit_Status"].value_counts()
+            
+            # Get counts for "Completed" status
+            user_completed = user_status_counts.get("Completed", 0)
+            
+            # Calculate total units for this user
+            user_total_units = len(user_units)
+            
+            # Debug: Print user counts
+            print(f"User {user}: Completed: {user_completed}, Total Units: {user_total_units}")
+            
+            # Calculate completion percentage for this user
+            if user_total_units > 0:
+                user_completed_pct = (user_completed / user_total_units) * 100
+            else:
+                user_completed_pct = 0
+                
+            # Append to list only if completion rate < 60%
+            if user_completed_pct < 60:
+                user_completion_rates.append((user, user_completed_pct))
+            
+            # Debug: Print user completion percentage
+            print(f"User {user} completion percentage: {user_completed_pct:.1f}%")
+        except Exception as e:
+            print(f"Error processing user {user}: {str(e)}")
+            continue
+    
+    # Step 4: Sort users by completion rate (ascending) and take all with <60%
+    user_completion_rates.sort(key=lambda x: x[1])  # Sort by percentage in ascending order
+    
+    # Debug: Print users with <60% completion
+    print(f"Underperformers with <60% completion rate in {selected_org}: {[(user, f'{pct:.1f}%') for user, pct in user_completion_rates]}")
+    
+    # If no users with <60% completion found, show a message
+    if not user_completion_rates:
+        plt.figure(figsize=(8, 6), facecolor='white')
+        plt.text(0.5, 0.5, f"No users with <60% completion found in {selected_org}.",
+                 fontsize=14, ha='center', va='center',
+                 bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+        plt.axis('off')
+        plt.tight_layout()
+        
+        # Save the error message as an image
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        result = image_base64
+    else:
+        # Step 5: Create a bar graph for users with <60% completion
+        # Extract user names and their completion percentages
+        users, completion_pcts = zip(*user_completion_rates)
+        
+        # Create a figure
+        plt.figure(figsize=(10, 6), facecolor='white')
+        
+        # Plot the bar graph
+        bars = plt.bar(users, completion_pcts, color='#F5A9B8')  # Pastel Pink for underperformers
+        
+        # Add percentage labels on top of each bar
+        for bar in bars:
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2, yval + 1, f'{yval:.1f}%', 
+                     ha='center', va='bottom', fontsize=10)
+        
+        # Customize the plot
+        plt.title(f"Underperformers with <60% Completion Rate in {selected_org}", 
+                  fontsize=16, pad=20)
+        plt.xlabel("Users", fontsize=12)
+        plt.ylabel("Completion Percentage (%)", fontsize=12)
+        plt.ylim(0, 70)  # Set y-axis limit to 70 since we're only showing <60%
+        
+        # Rotate x-axis labels for better readability
+        plt.xticks(rotation=45, ha='right')
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        # Save the plot to a BytesIO buffer and encode as base64
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.close()
+        plt.close()
+        
+        # Return the base64 encoded image
+        result = image_base64
+
+
+Analysis_key=UQ6.1
+
+plt.tight_layout()
+                # Save the plot to a BytesIO buffer and encode as base64
+                buffer = io.BytesIO()
+                plt.savefig(buffer, format='png', bbox_inches='tight')
+                buffer.seek(0)
+                image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                buffer.close()
+                plt.close()
+                result = image_base64
+                
+
+Analysis_key=UQ6.2
+
+plt.tight_layout()
+                # Save the plot to a BytesIO buffer and encode as base64
+                buffer = io.BytesIO()
+                plt.savefig(buffer, format='png', bbox_inches='tight')
+                buffer.seek(0)
+                image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                buffer.close()
+                plt.close()
+                result = image_base64
+                
+
+Analysis_key=UQ6.3
+
+plt.tight_layout()
+                # Save the plot to a BytesIO buffer and encode as base64
+                buffer = io.BytesIO()
+                plt.savefig(buffer, format='png', bbox_inches='tight')
+                buffer.seek(0)
+                image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                buffer.close()
+                plt.close()
+                result = image_base64
+                
+

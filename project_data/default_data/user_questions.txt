@@ -1,0 +1,6 @@
+UQ6=Other Category
+
+UQ6.1|I need to see the graphical representation of number of users vs grade across i can organiization please provide
+
+UQ6.2|Which Chapters within a Lesson Journey have the lowest correct response rate on the first attempt?
+UQ6.3|What is the variance in the number of attempts across chapters for each grade?

@@ -1,0 +1,46 @@
+UQ1=General Understanding
+UQ1.1|How many 'Users' are there in the class?
+UQ1.2|How many 'Course' are assigned for the class?|columnName=Course
+UQ1.3|What are the Units present in the Chapter ?|columnName=Chapter_Name
+UQ1.4|What are the Chapters present in the Course ? 
+UQ1.5|Which language course is this?
+UQ1.6|How many 'Activities' are assigned to the class?
+UQ1.7|What are the types of 'Activities' assigned to the class'?
+
+####################################################################################################
+
+UQ2=Accuracy and Scores
+UQ2.1|What is the average score of the class?
+UQ2.2|What is the highest score of the class?
+UQ2.3|Who is the poor student with less accuracy in the class?
+UQ2.4|What is the standard deviation of each user from the mean?
+
+####################################################################################################
+
+UQ3=Individual Analysis
+UQ3.1|What is the average score of user ?
+UQ3.2|What is the growth rate of user ?
+UQ3.3|What are the units assigned for the user ?
+UQ3.4|What are the activities assigned for the user ?
+UQ3.5|What are the chapters assigned for the user ?
+UQ3.6|What are the cource assigned for the user ?
+UQ3.7|Questions attended by the user ?
+UQ3.8|Which Part of speech the user is struggling in ?
+
+####################################################################################################
+
+UQ4=Class weakness and Strength
+UQ4.1|What are the units that the whole class is struggling in?
+UQ4.2|What are the units that the whole class is strong in?
+UQ4.3|What are the chapters that the whole class is struggling in?
+UQ4.4|What are the chapters that the whole class is strong in?
+UQ4.5|What are the part of speech the whole class finding difficulty in learining?
+
+####################################################################################################
+
+
+UQ6=Other Category
+UQ6.1|how many users are there in the class
+UQ6.2|who are the users in the class
+UQ6.3|what are the name of the units assigned for user gaurav
+UQ6.4|who is the best student

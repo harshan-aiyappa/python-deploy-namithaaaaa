@@ -1,0 +1,66 @@
+Analysis_key=UQ1.1
+# Number of unique users
+result = df['User_FullName'].nunique()
+Analysis_key=UQ1.1
+# Number of unique users
+result = df['User_FullName'].nunique()
+
+Analysis_key=UQ1.2
+# Number of unique courses
+result = df['Course'].nunique()
+
+Analysis_key=UQ1.3
+# What are the 'Units' present in the Chapter _? 
+chapter_name = params.get('Chapter_Name', '')
+if chapter_name:
+    result = df[df['Chapter_Name'] == chapter_name]['Unit_Name'].unique().tolist()
+else:
+    result = "Please select a chapter"
+
+Analysis_key=UQ1.4
+# What are the 'Chapters' present in the Course _? 
+course = params.get('Course', '')
+if course:
+    result = df[df['Chapter_Name'] == course]['Question'].unique().tolist()
+else:
+    result = "Please select a Course"
+
+Analysis_key=UQ1.5
+# Languages used in the course
+result = df['Language'].unique().tolist()
+
+Analysis_key=UQ1.6
+# Number of different learning activities
+result = df['Question_Type'].nunique()
+
+Analysis_key=UQ1.7
+# Types of activities assigned
+result = df['Question_Type'].unique().tolist()
+
+####################################################################################################
+
+Analysis_key=UQ6.1
+import pandas as pd
+user_count = df['User_FullName'].nunique()
+result = user_count
+Analysis_key=UQ6.2
+import pandas as pd
+result = df['User_FullName'].unique().tolist()
+Analysis_key=UQ6.3
+import pandas as pd
+gaurav_units = df[df['User_FullName'] == 'gaurav']['Unit_Name'].unique().tolist()
+result = gaurav_units
+Analysis_key=UQ6.4
+import pandas as pd
+df['Is_User_Response_Correct'] = df['Is_User_Response_Correct'].astype(str)
+df['correct_list'] = df['Is_User_Response_Correct'].apply(lambda x: [int(i) for i in x.strip('{}').split(',') if i != 'NULL'])
+df['num_correct'] = df['correct_list'].apply(lambda x: sum(x))
+df['num_total'] = df['correct_list'].apply(lambda x: len(x))
+df_valid = df[df['num_total'] > 0]
+user_accuracy = df_valid.groupby('User_FullName').agg({
+    'num_correct': 'sum',
+    'num_total': 'sum'
+})
+user_accuracy['accuracy_rate'] = user_accuracy['num_correct'] / user_accuracy['num_total']
+best_student = user_accuracy['accuracy_rate'].idxmax()
+result = best_student

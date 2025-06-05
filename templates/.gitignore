@@ -1,9 +1,10 @@
 __pycache__/
 *.py[cod]
 *.so
-lenv/
+.venv/
+venv/
+.env
 .vscode/
 *.db
 .DS_Store
 Thumbs.db
-/.lenv

@@ -1,0 +1,66 @@
+Analysis_key=UQ1.1
+question = params.get('Question', '')  # Ensure this matches what frontend sends
+
+# Filter for first attempts with correct responses for the specific question
+correct_first_attempt = df[
+    (df["Number_of_Attempts"] == 1) & 
+    (df["Question"] == question)
+]
+
+# Calculate results
+num_correct_students = correct_first_attempt["User_FullName"].nunique()
+correct_student_names = correct_first_attempt["User_FullName"].unique().tolist()
+
+# Create a figure with a specific size
+plt.figure(figsize=(14, 8), facecolor='white')
+
+# Define an expanded list of 20 mild colors (pastel shades)
+colors = [
+    '#d1e7dd', '#f5e8d3', '#cce5ff', '#e2d6f0', '#f0e4d7', 
+    '#d4edda', '#f4c7c3', '#e6d5e8', '#d9e7f5', '#f9e1cc',
+    '#d6e4e9', '#f7d7db', '#e8f0d8', '#f2e2e6', '#d8e2f2',
+    '#f0d9e5', '#e1f0e8', '#fce2cc', '#e9d7f2', '#d5ece2'
+]
+
+# If no students, display a message
+if num_correct_students == 0:
+    plt.text(0.5, 0.5, "No students answered correctly on first attempt.", 
+             fontsize=14, ha='center', va='center', 
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#fee2e2', edgecolor='#991b1b', alpha=0.9))
+else:
+    # Calculate layout: number of columns based on students, max 7 per row
+    cols = min(num_correct_students, 7)
+    rows = (num_correct_students + cols - 1) // cols  # Ceiling division
+
+    for i, student in enumerate(correct_student_names):
+        # Assign a color, cycling through the list (repeats from first color after 20)
+        color = colors[i % len(colors)]
+        
+        # Calculate position (grid-like layout)
+        row = i // cols
+        col = i % cols
+        
+        # Position each "column" (box) in a grid
+        x_pos = col * 0.2 + 0.1  # Horizontal spacing
+        y_pos = 1 - (row * 0.3 + 0.2)  # Vertical spacing, from top down
+        
+        # Draw a rectangular patch for each student
+        plt.gca().add_patch(plt.Rectangle((x_pos - 0.08, y_pos - 0.1), 0.16, 0.2, 
+                                          facecolor=color, edgecolor='#666666', linewidth=1, alpha=0.8))
+        
+        # Add student name inside the box
+        plt.text(x_pos, y_pos, student, fontsize=10, ha='center', va='center', 
+                 wrap=True, color='#333333', fontweight='medium')
+
+    # Add summary text above the columns
+    plt.text(0.5, 0.95, f"Students Correct on First Attempt: {num_correct_students}", 
+             fontsize=14, ha='center', va='top', 
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='#e0f2fe', edgecolor='#075985', alpha=0.9))
+
+# Remove axes for a clean look
+plt.axis('off')
+
+# Adjust layout
+plt.tight_layout()
+
+##########################################################################################################

@@ -1,0 +1,202 @@
+#Number of unique users in the class
+Graphkey=UQ1.1
+plt.figure(figsize=(6, 4))
+sns.countplot(y=df['User_FullName'], palette='viridis')
+plt.xlabel("Count")
+plt.ylabel("Users")
+plt.title("Number of Users in the Class")
+
+###############
+
+#Number of courses assigned
+Graphkey=UQ1.2
+plt.figure(figsize=(6, 4))
+sns.countplot(y=df['Course'], palette='coolwarm')
+plt.xlabel("Count")
+plt.ylabel("Courses")
+plt.title("Number of Courses Assigned")
+
+###############
+
+Graphkey=UQ1.3
+# What are the 'Units' present in the Chapter _? 
+chapter_name = params.get('Chapter_Name', '')
+if chapter_name:
+    plt.figure(figsize=(10, 6))
+    units = df[df['Chapter_Name'] == chapter_name]['Unit_Name'].unique()
+    if len(units) > 0:
+        bar_colors = plt.cm.get_cmap('tab20', len(units))  # Using tab20 colormap for different colors
+        plt.bar(units, [1] * len(units), color=bar_colors.colors[:len(units)])  # Plot each unit with the same height
+        plt.title(f'Units in Chapter: {chapter_name}')
+        plt.xlabel('Unit Name')
+        plt.xticks(rotation=45, ha='right')
+        plt.yticks([])  # Remove y-axis markings
+        plt.tight_layout()
+    else:
+        plt.text(0.5, 0.5, f"No units found for chapter: {chapter_name}", 
+                 horizontalalignment='center', verticalalignment='center')
+        plt.axis('off')
+else:
+    plt.text(0.5, 0.5, "Please select a chapter", 
+             horizontalalignment='center', verticalalignment='center')
+    plt.axis('off')
+
+###############    
+
+Graphkey=UQ1.4
+# What are the 'Chapters' present in the Course _?
+course = params.get('Course', '')
+if course:
+    plt.figure(figsize=(10, 6))
+    units = df[df['Course'] == course]['Question'].unique()
+    if len(units) > 0:
+        bar_colors = plt.cm.get_cmap('tab20', len(units))  # Using tab20 colormap for different colors
+        plt.bar(units, [1] * len(units), color=bar_colors.colors[:len(Question)])  # Plot each unit with the same height
+        plt.title(f'Units in Chapter: {chapter_name}')
+        plt.xlabel('Unit Name')
+        plt.xticks(rotation=45, ha='right')
+        plt.yticks([])  # Remove y-axis markings
+        plt.tight_layout()
+    else:
+        plt.text(0.5, 0.5, f"No units found for chapter: {chapter_name}", 
+                 horizontalalignment='center', verticalalignment='center')
+        plt.axis('off')
+else:
+    plt.text(0.5, 0.5, "Please select a chapter", 
+             horizontalalignment='center', verticalalignment='center')
+    plt.axis('off')
+
+###############
+
+# UQ1.5 - Language of the course
+Graphkey=UQ1.5
+plt.figure(figsize=(6, 4))
+sns.countplot(y=df['Language'], palette='pastel')
+plt.xlabel("Count")
+plt.ylabel("Language")
+plt.title("Language of the Course")
+
+###############
+
+# UQ1.6 - Number of activities assigned
+Graphkey=UQ1.6
+plt.figure(figsize=(8, 5))
+sns.countplot(y=df['User_FullName'], hue=df['Question_Type'], palette='rocket')
+plt.xlabel("Count")
+plt.ylabel("Users")
+plt.title("Number of Activities Assigned to Each User")
+
+###############
+
+# UQ1.7 - Types of activities assigned
+Graphkey=UQ1.7
+plt.figure(figsize=(8, 5))
+sns.countplot(y=df['Question_Type'], palette='cubehelix')
+plt.xlabel("Count")
+plt.ylabel("Activity Type")
+plt.title("Types of Activities Assigned")
+
+####################################################################################################Graphkey=UQ6.1
+
+
+Graphkey=UQ6.1
+plt.figure(figsize=(8, 6))
+sns.set(style="whitegrid")
+# Calculate the number of unique users
+user_count = df['User_FullName'].nunique()
+# Create a bar plot
+ax = sns.barplot(x=['Unique Users'], y=[user_count], palette="viridis")
+# Annotate the bar with the exact user count
+for p in ax.patches:
+    ax.annotate(f'{int(p.get_height())}',
+    (p.get_x() + p.get_width() / 2., p.get_height()),
+    ha='center', va='center',
+    xytext=(0, 10), textcoords='offset points', fontsize=12, color='black')
+    # Customize the plot
+    plt.title('Number of Unique Users', fontsize=16, fontweight='bold')
+    plt.ylabel('User Count', fontsize=12)
+    plt.xlabel('')  # Remove x-axis label
+    plt.ylim(0, user_count + 1)  # Adjust y-axis limit for better visualization
+    plt.xticks([]) # Remove x-ticks
+    plt.tight_layout()
+
+Graphkey=UQ6.2
+# Count the number of questions answered by each user
+user_question_counts = df['User_FullName'].value_counts().sort_values(ascending=False)
+# Create the bar chart
+plt.figure(figsize=(12, 7))
+sns.barplot(x=user_question_counts.index, y=user_question_counts.values, palette="viridis")
+# Add annotations for each bar
+for i, count in enumerate(user_question_counts.values):
+    plt.text(i, count + 0.1, str(count), ha='center', fontsize=10)
+    # Customize the plot
+    plt.title('Number of Questions Answered by Each User', fontsize=16, fontweight='bold')
+    plt.xlabel('User Full Name', fontsize=12)
+    plt.ylabel('Number of Questions Answered', fontsize=12)
+    plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for readability
+    plt.tight_layout()
+
+Graphkey=UQ6.3
+# Filter the DataFrame for the user 'gaurav'
+gaurav_df = df[df['User_FullName'] == 'gaurav']
+# Extract the unique unit names assigned to 'gaurav'
+gaurav_units = gaurav_df['Unit_Name'].unique().tolist()
+# Create a DataFrame for plotting
+plot_data = pd.DataFrame({'Unit_Name': gaurav_units})
+plot_data['Unit_Name'] = plot_data['Unit_Name'].astype(str)  # Ensure Unit_Name is a string
+# Create the bar plot
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Unit_Name', y=[1]*len(gaurav_units), data=plot_data, palette='viridis') # y=[1]*len(gaurav_units) creates a dummy y-axis for barplot
+# Annotate each bar with the unit name
+for i, unit in enumerate(gaurav_units):
+    plt.text(i, 0.5, unit, ha='center', va='center', color='white', fontsize=10)
+    # Customize the plot
+    plt.title('Units Assigned to Gaurav', fontsize=16, fontweight='bold')
+    plt.xlabel('Unit Name', fontsize=12)
+    plt.ylabel('Count', fontsize=12)  # Changed y-axis label to 'Count'
+    plt.ylim(0, 2) # Adjust y-axis limit for better visualization
+    plt.yticks([]) # Remove y-axis ticks
+    plt.tight_layout()
+
+Graphkey=UQ6.4
+# Data Preparation: Ensure 'Is_User_Response_Correct' is string type
+df['Is_User_Response_Correct'] = df['Is_User_Response_Correct'].astype(str)
+# Convert string representation of lists to actual lists
+df['correct_list'] = df['Is_User_Response_Correct'].apply(lambda x: [int(i) for i in x.strip('{}').split(',') if i != 'NULL'])
+# Calculate number of correct and total responses
+df['num_correct'] = df['correct_list'].apply(lambda x: sum(x))
+df['num_total'] = df['correct_list'].apply(lambda x: len(x))
+# Filter out rows where num_total is zero to avoid division by zero
+df_valid = df[df['num_total'] > 0]
+# Aggregate user data to calculate accuracy
+user_accuracy = df_valid.groupby('User_FullName').agg({
+'num_correct': 'sum',
+'num_total': 'sum'
+})
+user_accuracy['accuracy_rate'] = user_accuracy['num_correct'] / user_accuracy['num_total']
+# Identify the best student
+best_student = user_accuracy['accuracy_rate'].idxmax()
+best_accuracy = user_accuracy.loc[best_student, 'accuracy_rate']
+# Visualization
+plt.figure(figsize=(12, 7))
+sns.set(style="whitegrid")
+# Sort the user accuracy for better visualization
+user_accuracy = user_accuracy.sort_values('accuracy_rate', ascending=False)
+# Create a bar plot of user accuracy rates
+ax = sns.barplot(x=user_accuracy.index, y='accuracy_rate', data=user_accuracy, palette="viridis")
+# Annotate the best student's bar
+best_student_index = user_accuracy.index.get_loc(best_student)
+ax.patches[best_student_index].set_facecolor('red')  # Highlight the best student's bar
+# Annotate each bar with the accuracy rate
+for i, p in enumerate(ax.patches):
+    accuracy = user_accuracy['accuracy_rate'].iloc[i]
+    ax.annotate(f'{accuracy:.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
+    ha='center', va='center', xytext=(0, 10), textcoords='offset points', fontsize=9, color='black')
+    # Customize the plot
+    plt.title('User Accuracy Rates in French Language Learning', fontsize=16, fontweight='bold')
+    plt.xlabel('User Full Name', fontsize=12)
+    plt.ylabel('Accuracy Rate', fontsize=12)
+    plt.ylim(0, 1.1)  # Set y-axis limit to 0-1.1 for better visualization
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.tight_layout()
+

@@ -1,0 +1,133 @@
+Analysis_key=UQ6.1
+# --- SUMMARY START ---
+The number of unique students in each grade at I Can International School is shown in a bar chart.  The chart displays the count of unique students for each grade level.  "Class 6" has the highest number of students.  A graphical representation of this data is provided.
+# --- SUMMARY END ---
+# --- CODE START ---
+def create_visualization(df):
+    try:
+        # Check if necessary columns exist
+        required_cols = ["User_FullName", "Grade", "LrnrPromptProgress_OrganizationID"]
+        if not all(col in df.columns for col in required_cols):
+            raise ValueError("One or more required columns are missing from the dataset.")
+
+        # Filter data for "I Can International School"
+        df_filtered = df[df["LrnrPromptProgress_OrganizationID"] == 2]
+
+        # Group by Grade and count unique users
+        user_counts = df_filtered.groupby("Grade")["User_FullName"].nunique().reset_index()
+
+        # Create the graphical representation
+        plt.figure(figsize=(10, 6))
+        sns.barplot(x="Grade", y="User_FullName", data=user_counts)
+        plt.xlabel("Grade")
+        plt.ylabel("Number of Unique Users")
+        plt.title("Number of Users vs Grade (I Can International School)")
+        plt.tight_layout()
+        img = io.BytesIO()
+        plt.savefig(img, format='png', dpi=150, bbox_inches='tight')
+        img.seek(0)
+        plt.close()
+        return base64.b64encode(img.getvalue()).decode('utf8')
+
+    except Exception as e_generated_viz_code:
+        plt.close()
+        plt.figure(figsize=(10, 6))
+        plt.text(0.5, 0.5, f'Error generating visualization: {str(e_generated_viz_code)}', ha='center', va='center', color='red', wrap=True)
+        plt.title('Visualization Generation Error')
+        plt.axis('off')
+        img_err = io.BytesIO()
+        plt.savefig(img_err, format='png', bbox_inches='tight')
+        img_err.seek(0)
+        plt.close()
+        return base64.b64encode(img_err.getvalue()).decode('utf8')
+# --- CODE END ---
+
+Analysis_key=UQ6.2
+# --- SUMMARY START ---
+The five chapters with the lowest correct response rates on the first attempt within I Can International School lessons are between 82% and 95% accurate.  These rates are based on student responses in various classes (Grades 1-6) across different courses.  The specific chapter names are not available in this analysis.
+# --- SUMMARY END ---
+# --- CODE START ---
+def create_visualization(df):
+    try:
+        #Check if necessary columns exist
+        required_cols = ['Chapter', 'Attempts', 'IsUserResponseCorrect']
+        if not all(col in df.columns for col in required_cols):
+            raise ValueError("One or more required columns are missing from the dataset.")
+
+        #Filter for first attempts
+        df_first_attempt = df[df['Attempts'] == 1]
+
+        #Calculate correct response rate per chapter
+        correct_rate_by_chapter = df_first_attempt.groupby('Chapter')['IsUserResponseCorrect'].agg(['mean', 'count'])
+        correct_rate_by_chapter = correct_rate_by_chapter.rename(columns={'mean': 'Correct Rate', 'count':'Attempt Count'})
+        correct_rate_by_chapter = correct_rate_by_chapter.sort_values(by='Correct Rate')
+
+
+        plt.figure(figsize=(12, 6))
+        sns.barplot(x='Correct Rate', y='Chapter', data=correct_rate_by_chapter.reset_index(), palette="Blues_d")
+        plt.title('Chapters with Lowest Correct Response Rate (First Attempt)')
+        plt.xlabel('Correct Response Rate')
+        plt.ylabel('Chapter')
+        plt.tight_layout()
+
+        img = io.BytesIO()
+        plt.savefig(img, format='png', dpi=150, bbox_inches='tight')
+        img.seek(0)
+        plt.close()
+        return base64.b64encode(img.getvalue()).decode('utf8')
+
+    except Exception as e_generated_viz_code:
+        plt.close()
+        plt.figure(figsize=(10, 6))
+        plt.text(0.5, 0.5, f'Error in generated plot code: {str(e_generated_viz_code)}', ha='center', va='center', color='red', wrap=True)
+        plt.title('Visualization Generation Error (in AI code)')
+        plt.axis('off')
+        img_err = io.BytesIO()
+        plt.savefig(img_err, format='png', bbox_inches='tight')
+        img_err.seek(0)
+        plt.close()
+        return base64.b64encode(img_err.getvalue()).decode('utf8')
+# --- CODE END ---
+
+Analysis_key=UQ6.3
+# --- SUMMARY START ---
+The variance in the number of attempts for students in each chapter and grade at I Can International School is shown. For example, in Class 5, the variance in attempts ranges from near zero for some chapters to almost 2 for "Greetings & Salutations".  Similarly, in Class 6, the variance ranges from zero to almost 2 for "Sentence Basics".  The analysis provides the variance for each chapter within each grade.
+# --- SUMMARY END ---
+# --- CODE START ---
+def create_visualization(df):
+    try:
+        # Check if necessary columns exist
+        required_cols = ['Grade', 'Chapter', 'Attempts']
+        if not all(col in df.columns for col in required_cols):
+            raise ValueError("One or more required columns ('Grade', 'Chapter', 'Attempts') are missing from the dataset.")
+
+        # Group data by Grade and Chapter, then calculate the variance of Attempts
+        result = df.groupby(['Grade', 'Chapter'])['Attempts'].var().reset_index()
+        result['Attempts'] = result['Attempts'].fillna(0)
+
+        plt.figure(figsize=(12, 6))
+        sns.barplot(x='Chapter', y='Attempts', hue='Grade', data=result)
+        plt.title('Variance in Attempts Across Chapters for Each Grade')
+        plt.xlabel('Chapter')
+        plt.ylabel('Variance of Attempts')
+        plt.xticks(rotation=90, ha='right')
+        plt.tight_layout()
+        img = io.BytesIO()
+        plt.savefig(img, format='png', dpi=150, bbox_inches='tight')
+        img.seek(0)
+        plt.close()
+        return base64.b64encode(img.getvalue()).decode('utf8')
+
+    except Exception as e_generated_viz_code:
+        plt.close()
+        plt.figure(figsize=(10, 6))
+        plt.text(0.5, 0.5, f'Error in generated plot code: {str(e_generated_viz_code)}', ha='center', va='center', color='red', wrap=True)
+        plt.title('Visualization Generation Error (in AI code)')
+        plt.axis('off')
+        img_err = io.BytesIO()
+        plt.savefig(img_err, format='png', bbox_inches='tight')
+        img_err.seek(0)
+        plt.close()
+        return base64.b64encode(img_err.getvalue()).decode('utf8')
+# --- CODE END ---
+
