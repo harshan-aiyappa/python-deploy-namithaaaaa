@@ -730,7 +730,8 @@ load_dotenv()
 # Get the BASE_URL from environment variables for frontend use
 # BASE_URL = os.getenv('BASE_URL', 'http://0.0.0.0:5001')  # Default value if not set in .env
 # BASE_URL = 'https://learningreports.azurewebsites.net'
-BASE_URL = 'http://10.10.20.122:5001'
+# BASE_URL = 'http://10.10.20.122:5001'
+BASE_URL = 'https://python-deploy-namithaaaaa-v2.onrender.com'
 
 # Parse BASE_URL to get HOST and PORT
 parsed_url = urlparse(BASE_URL)
